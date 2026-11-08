@@ -15,4 +15,4 @@ Application web (PWA) : calendrier d’entretien des plantes du jardin, avec rec
 Les plantes ajoutées sont enregistrées sur l’appareil, dans l’application installée. Une mise à jour du code sur GitHub ne les efface pas. « Exporter » et « Importer » servent à sauvegarder ou à transférer ces plantes d’un appareil à l’autre.
 
 ## Mettre à jour l’application
-Remplace `index.html` dans le dépôt. Pour forcer le rechargement chez toi, change le numéro de version `jardin-v2` dans `sw.js`.
+Remplace `index.html` dans le dépôt. Pour forcer le rechargement chez toi, change le numéro de version `jardin-v3` dans `sw.js`.
