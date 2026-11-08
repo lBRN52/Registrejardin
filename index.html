@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Registre jardin">
+<meta name="theme-color" content="#f3eee3">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/favicon-32.png">
+<title>Registre d’entretien jardin</title>
+<style>
+:root{--bg:#f6f7f2;--card:#fff;--tx:#1d2a1d;--mu:#667066;--ac:#2f7d46;--bd:#dde3d6;--sel:#e7eadd;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141a14;--card:#1e271e;--tx:#e8efe6;--mu:#9aa89a;--ac:#6fcf8a;--bd:#2f3b2f;--sel:#0d110d}}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.45 -apple-system,system-ui,"Segoe UI",sans-serif}
+main{max-width:640px;margin:0 auto;padding:14px}
+h1{font-size:19px;font-weight:600;letter-spacing:.02em;margin:4px 0 12px}
+input,textarea,button{font:inherit;color:var(--tx)}
+input,textarea{width:100%;padding:11px 12px;border:1px solid var(--bd);border-radius:10px;background:var(--card);margin-bottom:8px}
+button{border:0;background:var(--ac);color:#fff;padding:10px 14px;border-radius:10px;cursor:pointer}
+button.s{background:transparent;color:var(--ac);border:1px solid var(--ac)}
+button.d{background:#a33b34}
+button.s.on{background:var(--ac);color:#fff}
+.row button{padding:10px 6px;font-size:14px}#add{flex:1.7}
+.cnt{color:var(--mu);font-size:13px;margin:-6px 0 12px}
+.it.sel{border-color:var(--sel);box-shadow:inset 4px 0 0 var(--sel)}.hd{cursor:pointer}.dt{margin-top:8px;border-top:1px solid var(--bd);padding-top:2px;cursor:default}.dt .card{background:transparent;border:0;padding:0;margin:8px 0 0}.dt .row{margin-top:12px}
+.foot{display:flex;justify-content:center;gap:10px;margin-top:28px;padding:10px}.foot button{background:transparent;color:var(--mu);border:1px solid var(--bd);font-size:14px;padding:10px 18px;min-width:110px}
+.row{display:flex;gap:8px;margin-bottom:10px}.row>*{flex:1}
+.it{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:11px 13px;margin-bottom:8px;cursor:pointer}
+.it small{color:var(--mu);display:block}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:12px}
+.l{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--mu);margin-top:10px}
+.v{margin:0}.tag{display:inline-block;background:var(--ac);color:#fff;border-radius:8px;padding:1px 8px;font-size:13px;margin-right:6px}
+.eng{border-left:3px solid var(--ac);padding:4px 0 4px 10px;margin:8px 0}
+.new{font-size:11px;color:var(--ac);border:1px solid var(--ac);border-radius:6px;padding:0 5px;margin-left:6px}
+</style></head><body><main id="app"></main>
+<script>
+const FERT=[["Mars (mi-mars)","Corne broyée + fiente de poule (enrichissement doux et durable) + fer pour palmiers"],["Mai","Engrais 10-10-10 (bleu, chimique) + sang séché"],["Juin","Engrais floraison riche en K (potassium) pour les fruitiers + potager"]];
+const BASE=[
+["Actinidia chinensis 'Solissimo' (Renact)","Février, Juillet","Juin - Juillet","Avril - Octobre","Taille en hiver et été, palissage, bonne fertilisation"],
+["Prunus laurocerasus 'Novita'","Février - Mars, Septembre (après floraison)","Avril - Mai","Mars - Octobre","Taille pour densifier, éviter sols trop humides, supporte l'ombre"],
+["Elaeagnus ebbingei","Février, Septembre (après floraison)","Septembre - Novembre","Mars - Octobre","Persistant, supporte vent et sel, croissance rapide"],
+["Amelanchier 'Prince William'","Février - Mars","Avril - Mai","Mars - Octobre","Taille de nettoyage ou formation, rustique"],
+["Vigne blanche","Hiver","Mai - Juin","Avril - Octobre","Taille sévère en hiver pour fructification optimale"],
+["Vigne rouge","Hiver","Mai - Juin","Avril - Octobre","Taille sévère en hiver pour fructification optimale"],
+["Lonicera kamtschatica 'Zojka'","Fin hiver - début printemps","Avril - Mai","Mars - Octobre","Taille pour limiter la croissance, tolère bien la taille. Pas trop pour conserver la fructification, taille d'aération et de bois mort"],
+["Lonicera kamtschatica 'Martin'","Fin hiver - début printemps","Avril - Mai","Mars - Octobre","Entretien similaire à 'Zojka', préfère sols frais"],
+["Vaccinium corymbosum 'Duke'","Janvier - Mars","Avril - Mai","Mars - Octobre","Sol acide, taille douce, paillage recommandé"],
+["Vaccinium corymbosum 'Bluecrop'","Janvier - Mars","Mai","Mars - Octobre","Même soin que 'Duke', sol acide, taille hivernale"],
+["Elaeagnus umbellata 'Pointilla Sweet'N'Sour'","Février - Mars","Mai - Juin","Avril - Octobre","Auto-fertile, tolère sécheresse, récolte en septembre"],
+["Elaeagnus umbellata 'Pointilla Amoroso'","Février - Mars","Mai - Juin","Avril - Octobre","Fruits comestibles, attire pollinisateurs"],
+["Ficus carica (Figuier)","Mars","Juin - Août","Avril - Octobre","Taille pour former ou limiter, aime soleil et sol bien drainé"],
+["Akebia quinata 'Silver Bell'","Mars","Avril - Mai","Mars - Octobre","Taille de nettoyage après floraison"],
+["Akebia quinata","Mars","Avril - Mai","Mars - Octobre","Taille légère si nécessaire"],
+["Lonicera japonica 'Dart's World'","Mars","Juin - Septembre","Mars - Octobre","Taille sévère possible en fin d'hiver"],
+["Lonicera japonica 'Sinensis'","Mars","Juin - Septembre","Mars - Octobre","Taille d'équilibre au début du printemps"],
+["Lycium barbarum (Goji)","Mars, Été","Juin - Août","Avril - Octobre","Taille pour contenir, fruits riches en antioxydants"],
+["Photinia x fraseri 'Red Robin'","Mars, Juin","Avril - Mai","Mars - Octobre","Taille de formation au printemps et entretien après pousse"],
+["Photinia x fraseri 'Magical Volcano'","Mars, Juin","Avril - Mai","Mars - Octobre","Entretien similaire à 'Red Robin'"],
+["Photinia x fraseri 'Pink Marble'","Mars, Juin","Avril - Mai","Mars - Octobre","Taille pour conserver la forme et stimuler la couleur"],
+["Calycanthus raulstonii 'Aphrodite'","Mars - Avril","Mai - Juillet","Avril - Octobre","Parfumé, préfère sols riches et légers, taille de formation"],
+["Fargesia robusta 'Campbell'","Mars","Non fleurie","Avril - Octobre","Éliminer les chaumes secs"],
+["Fargesia scabrida 'Asian Wonder'","Mars","Non fleurie","Avril - Octobre","Entretien similaire à F. robusta"],
+["Lavandula angustifolia","Mars (végétation), Août - Septembre (floraison)","Juin - Août","Avril - Septembre","Taille après floraison pour garder une forme compacte, sol bien drainé"],
+["Prunus lusitanica 'Angustifolia'","Mars, Août","Mai - Juin","Mars - Octobre","Taille pour haies, feuillage persistant, supporte ombre"],
+["Buddleja globosa","Fin hiver - début printemps","Juillet - Septembre","Avril - Octobre","Taille sévère pour favoriser la floraison"],
+["Zanthoxylum piperitum","Fin hiver","Mai - Juin","Avril - Octobre","Taille de formation, protection hivernale en climat froid"],
+["Zanthoxylum armatum","Fin hiver","Mai - Juin","Avril - Octobre","Même entretien que Z. piperitum"],
+["Framboisier rouge - Rubus idaeus","Fin hiver - début printemps","Juin - Juillet","Mars - Octobre","Taille des branches fructifères et des jeunes pousses"],
+["Framboisier jaune - Rubus idaeus 'Fallgold'","Fin hiver - début printemps","Juin - Juillet","Mars - Octobre","Entretien identique au framboisier rouge"],
+["Groseillier à grappes rouges - Ribes rubrum 'Jonkheer van Tets'","Fin hiver","Mai - Juin","Mars - Octobre","Taille de fructification, éclaircir les branches"],
+["Groseillier à grappes blanches - Ribes rubrum 'Cerise blanche'","Fin hiver","Mai - Juin","Mars - Octobre","Taille similaire au groseillier rouge"],
+["Eucalyptus gunnii Azura® Cagire","Fin hiver - début printemps","Printemps","Avril - Octobre","Taille légère de formation, protéger des grands froids"],
+["Rosa 'Ghita Renaissance'","Fin hiver - début printemps","Juin - Septembre","Mars - Octobre","Taille de formation et nettoyage, supprimer bois mort"],
+["Hibiscus syriacus 'Lady Stanley'","Fin hiver - début printemps","Juillet - Septembre","Avril - Octobre","Taille légère pour stimuler la floraison"],
+["Hibiscus syriacus 'Pinky Spot Minspot'","Fin hiver - début printemps","Juillet - Septembre","Avril - Octobre","Même entretien que 'Lady Stanley'"],
+["Fuchsia magellanica 'Riccartonii'","Fin hiver - début printemps","Juin - Octobre","Avril - Octobre","Taille sévère pour favoriser la ramification"],
+["Fuchsia magellanica var. 'Molinae'","Fin hiver - début printemps","Juin - Octobre","Avril - Octobre","Taille similaire à 'Riccartonii'"],
+["Dryopteris wallichiana (fougère)","Fin hiver - début printemps","Non fleurie","Printemps - Automne","Enlever feuilles sèches, humus et ombre partielle"],
+["Phyllitis scolopendrium (fougère)","Fin hiver - début printemps","Non fleurie","Printemps - Automne","Entretien similaire à Dryopteris"],
+["Matteuccia struthiopteris (fougère)","Fin hiver - début printemps","Non fleurie","Printemps - Automne","Retirer les frondes mortes, humus riche"],
+["Weigela florida x coraeensis 'Bristol Ruby'","Fin hiver - début printemps","Mai - Juin","Avril - Octobre","Taille après floraison, supprimer bois mort"],
+["Deutzia scabra 'Plena'","Fin hiver - début printemps","Mai - Juin","Avril - Octobre","Taille après floraison, entretien classique"],
+["Tricyrtis formosana 'Gilt Edge'","Fin hiver - début printemps","Septembre - Octobre","Printemps - Automne","Protéger l'hiver, couper les tiges sèches"],
+["Tricyrtis hirta","Fin hiver - début printemps","Septembre - Octobre","Printemps - Automne","Entretien similaire à Tricyrtis formosana"],
+["Dicentra spectabilis","Fin hiver - début printemps","Avril - Mai","Printemps - Automne","Couper les tiges fanées, sol frais"],
+["Hemerocallis 'Chokecherry Mountain'","Fin hiver - début printemps","Juin - Août","Printemps - Automne","Division tous les 3-4 ans, enlever les fleurs fanées"],
+["Hemerocallis 'Black Arrowhead'","Fin hiver - début printemps","Juin - Août","Printemps - Automne","Entretien similaire à 'Chokecherry Mountain'"],
+["Hemerocallis 'Nowhere to Hide'","Fin hiver - début printemps","Juin - Août","Printemps - Automne","Même soin que les autres Hemerocallis"],
+["Hedychium coccineum 'Tara'","Fin hiver - début printemps","Juillet - Août","Printemps - Automne","Hivernage au sec dans les climats froids, taille après floraison"],
+["Hylotelephium spectabile","Fin hiver - début printemps","Août - Septembre","Printemps - Automne","Taille légère, sol drainé"],
+["Petrosedum rupestre","Fin hiver - début printemps","Juillet - Août","Printemps - Automne","Taille légère, sol très drainé"],
+["Cryptomeria japonica","Fin hiver - début printemps","Avril - Mai","Avril - Octobre","Taille légère, éviter tailles sévères"],
+["Thymus vulgaris","Avril, Septembre","Mai - Juillet","Mars - Octobre","Taille régulière pour éviter bois mort, plein soleil, sol pauvre"],
+["Thymus x citriodorus 'Aureus'","Avril, Septembre","Mai - Juillet","Mars - Octobre","Taille courte pour garder forme compacte, aime sols pauvres"],
+["Rosmarinus officinalis","Avril, Septembre","Mars - Mai","Mars - Octobre","Taille annuelle, éviter excès d'eau, plein soleil"],
+["Laurus nobilis (Laurier sauce)","Avril, Septembre (après floraison)","Mai - Juin","Mars - Octobre","Taille pour forme ou haie, cultiver en pot possible"],
+["Ligustrum japonicum (Troène du Japon)","Avril, Août (après floraison)","Juin - Août","Mars - Octobre","Persistant, supporte tailles fréquentes, forme dense"],
+["Syringa vulgaris (Lilas)","Mai - Juin (après floraison)","Avril - Mai","Mars - Octobre","Supprimer fleurs fanées, rajeunir vieux bois"],
+["Viburnum rhytidophyllum","Juin (après floraison)","Mai - Juin","Mars - Octobre","Sol frais, supporte l'ombre, feuillage persistant"],
+["Chaenomeles speciosa 'Red Kimono'","Mai - Juin","Mars - Avril","Mars - Octobre","Supprimer bois mort, bons fruits, taille après floraison"],
+["Ajuga reptans","Après floraison","Mai - Juin","Printemps - Automne","Nettoyer feuilles mortes, limiter l'envahissement"],
+["Iris germanica","Après floraison","Mai - Juin","Printemps - Automne","Division tous les 3-4 ans, enlever feuillage sec"],
+["Pinus sylvestris","Novembre à février ; juin pour les bougies","N/A","Toute l'année","Taille minimale – seulement bois mort ou formation"],
+["Prunus x institiae 'Mirabelle de Nancy'","Fin été","Avril","Mars - Octobre","Taille de fructification en fin d'hiver"],
+["Prunus avium 'Bigarreau Burlat'","Fin été","Avril - Mai","Mars - Octobre","Taille légère après récolte pour aérer, éviter les maladies"],
+["Trachycarpus fortunei","Mars (feuilles abîmées)","Avril - Juin","Mars - Octobre","Très rustique, pailler le pied en hiver, supprimer feuilles sèches"],
+["Trachycarpus wagnerianus","Mars","Avril - Juin","Mars - Octobre","Plus compact que fortunei, même entretien"],
+["Trachycarpus takil","Mars","Avril - Juin","Mars - Octobre","Très rustique, croissance lente, même entretien"],
+["Trachycarpus princeps","Avril - Mai","Mai - Juin","Avril - Octobre","Plus sensible au froid, protéger jeune sujet, drainage indispensable"],
+["Trachycarpus nainital","Mars","Avril - Juin","Mars - Octobre","Résistant au froid, port large, même entretien"],
+["Trachycarpus kumaon","Mars","Avril - Juin","Mars - Octobre","Rare, rustique, sol drainé, éviter humidité hivernale"],
+["Butia capitata","Mars - Avril","Juin - Août","Avril - Octobre","Rustique jusqu'à -10°C, protéger en Haute-Marne, sol bien drainé, soleil"],
+["Yucca rostrata","Pas de taille sauf feuilles mortes","Mai - Juin","Avril - Octobre","Drainage crucial, très résistant au froid sec, éviter excès d'eau"],
+["Phoenix canariensis","Avril","Juin - Août","Avril - Octobre","Non rustique, à hiverner en Haute-Marne ou culture en pot, enlever feuilles mortes"],
+["Dasylirion longissimum","Pas de taille","Été (rarement en climat frais)","Avril - Octobre","Exposition plein soleil, sol sec, rustique jusqu'à -10°C environ"],
+["Opuntia macrocentra","Pas de taille","Mai - Juin","Avril - Octobre","Sol drainant, éviter humidité hivernale, très rustique"],
+["Agave ovatifolia","Pas de taille","Été (rarement)","Avril - Octobre","Très rustique (-15°C), sol minéral, drainage maximal, ne pas arroser en hiver"],
+["Musa basjoo","Mars (feuilles abîmées)","Été (rare, climat doux)","Avril - Octobre","Rustique (-12 à -15°C), rabattre à ~20cm en hiver et pailler abondamment"],
+["Ensete ventricosum 'Maurelii'","Pas de taille spécifique","Rare sous nos climats","Mai - Septembre","Non rustique : culture en pot, rentrer à 5–10°C, arroser abondamment en été, sec en hiver"]
+].map(a=>({n:a[0],t:a[1],f:a[2],v:a[3],c:a[4]}));
+
+const K="jardin-perso";let mine=[];
+try{mine=JSON.parse(localStorage.getItem(K)||"[]")}catch(e){}
+const save=()=>{try{localStorage.setItem(K,JSON.stringify(mine))}catch(e){}};
+const norm=s=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const all=()=>[...BASE.map(p=>({...p,own:0})),...mine.map((p,i)=>({...p,own:1,i}))].sort((a,b)=>a.n.localeCompare(b.n,"fr"));
+const app=document.getElementById("app");
+let q="";
+
+function fertHTML(){return `<div class="card"><div class="l" style="margin-top:0">Engrais (valables pour toutes les plantes)</div>`+FERT.map(f=>`<div class="eng"><b>${f[0]}</b><br>${esc(f[1])}</div>`).join("")+`</div>`}
+
+let mode="list";
+async function exp(){
+ const txt=JSON.stringify({app:"registre-jardin",plantes:mine},null,1),name="registre-jardin.json";
+ try{const f=new File([txt],name,{type:"application/json"});
+  if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:"Registre d’entretien jardin"});return}
+ }catch(e){if(e&&e.name==="AbortError")return}
+ const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([txt],{type:"application/json"}));a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+}
+async function exp0(){
+ const txt=JSON.stringify({app:"registre-jardin",plantes:mine},null,1);
+ try{const d=window.claude?await window.claude.use("downloads"):null;
+  if(!d){alert("L’enregistrement de fichier n’est pas disponible ici.");return}
+  await d.save({filename:"registre-jardin.json",data:txt});
+ }catch(e){if(!e||e.code!=="declined")alert("Export impossible ("+(e&&e.code||"erreur")+").")}
+}
+async function expOld(){
+ const txt=JSON.stringify({app:"registre-jardin",plantes:mine},null,1);
+ try{const f=new File([txt],"registre-jardin.json",{type:"application/json"});
+  if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:"Registre d’entretien jardin"});return}
+ }catch(e){if(e&&e.name==="AbortError")return}
+ try{await navigator.clipboard.writeText(txt);alert("Partage indisponible ici : les données ont été copiées dans le presse-papiers.")}catch(e){prompt("Copie ces données :",txt)}
+}
+function home(){
+ app.innerHTML=`<h1>Registre d’entretien jardin</h1><div class="cnt" id="cnt"></div><input id="s" type="search" placeholder="Rechercher une plante…" value="${esc(q)}" autocomplete="off"><div class="row"><button class="${mode=="list"?"":"s"}" id="li">Liste</button><button class="${mode=="add"?"":"s"}" id="add">+ Ajouter une plante</button></div><div id="list"></div><div class="foot"><button id="ex">Exporter</button><button id="im">Importer</button></div><input id="fi" type="file" accept=".json,application/json" hidden>`;
+ const s=document.getElementById("s"),fi=document.getElementById("fi"),ad=document.getElementById("add");
+ const li=document.getElementById("li");
+ const tab=m=>{mode=m;li.className=m=="list"?"":"s";ad.className=m=="add"?"":"s";list()};
+ s.oninput=()=>{q=s.value;tab("list")};
+ li.onclick=()=>tab("list");ad.onclick=()=>tab("add");
+ document.getElementById("ex").onclick=exp;
+ document.getElementById("im").onclick=()=>fi.click();
+ fi.onchange=async()=>{const f=fi.files[0];if(!f)return;
+  try{const d=JSON.parse(await f.text()),a=Array.isArray(d)?d:d.plantes;if(!Array.isArray(a))throw 0;let n=0;
+   a.forEach(o=>{if(o&&o.n&&!mine.some(m=>m.n===o.n)&&!BASE.some(b=>b.n===o.n)){mine.push({n:String(o.n),t:String(o.t||""),f:String(o.f||""),v:String(o.v||""),c:String(o.c||"")});n++}});
+   save();alert(n+" plante(s) importée(s).");list()}catch(e){alert("Fichier invalide.")}
+  fi.value=""};
+ list();
+}
+let op=null,eidx=-1;
+function info(p){return `<div class="dt"><div class="l">Période de taille</div><p class="v">${esc(p.t)}</p><div class="l">Période de floraison</div><p class="v">${esc(p.f)}</p><div class="l">Période végétative</div><p class="v">${esc(p.v)}</p><div class="l">Conseils d’entretien</div><p class="v">${esc(p.c)}</p>${fertHTML()}${p.own?'<div class="row"><button class="s" id="ed">Modifier</button><button class="d" id="del">Supprimer</button></div>':""}</div>`}
+function list(){
+ document.getElementById("cnt").textContent=all().length+" plantes au total";
+ if(mode!="list"){form(mode=="edit"?eidx:-1);return}
+ const n=norm(q.trim()),r=all().filter(p=>norm(p.n).includes(n));
+ document.getElementById("list").innerHTML=r.map(p=>{const k=p.own?"o"+p.i:"b"+BASE.findIndex(b=>b.n===p.n),o=k===op;return `<div class="it${o?" sel":""}"><div class="hd" data-k="${k}">${esc(p.n)}${p.own?'<span class="new">ajoutée</span>':""}<small>Taille : ${esc(p.t)}</small></div>${o?info(p):""}</div>`}).join("")||`<p style="color:var(--mu)">Aucune plante trouvée.</p>`;
+ document.querySelectorAll(".hd").forEach(e=>e.onclick=()=>{op=op===e.dataset.k?null:e.dataset.k;list();const x=document.querySelector(".it.sel");if(x)x.scrollIntoView({block:"nearest",behavior:"smooth"})});
+ const be=document.getElementById("ed"),bd=document.getElementById("del");
+ if(be)be.onclick=()=>{eidx=+op.slice(1);mode="edit";home()};
+ if(bd)bd.onclick=()=>{if(confirm("Supprimer cette plante ?")){mine.splice(+op.slice(1),1);save();op=null;list()}};
+}
+function listOld(){
+ document.getElementById("cnt").textContent=all().length+" plantes au total";
+ if(mode=="add"){form();return}
+ const n=norm(q.trim()),r=all().filter(p=>norm(p.n).includes(n));
+ document.getElementById("list").innerHTML=r.map(p=>`<div class="it" data-k="${p.own?"o"+p.i:"b"+BASE.findIndex(b=>b.n===p.n)}">${esc(p.n)}${p.own?'<span class="new">ajoutée</span>':""}<small>Taille : ${esc(p.t)}</small></div>`).join("")||`<p style="color:var(--mu)">Aucune plante trouvée.</p>`;
+ document.querySelectorAll(".it").forEach(e=>e.onclick=()=>{const k=e.dataset.k;detail(k[0]=="o"?mine[+k.slice(1)]:BASE[+k.slice(1)],k[0]=="o"?+k.slice(1):-1)});
+}
+function detail(p,i){
+ app.innerHTML=`<button class="s" id="b">‹ Retour</button><h1>${esc(p.n)}</h1><div class="card">
+ <div class="l" style="margin-top:0">Période de taille</div><p class="v">${esc(p.t)}</p>
+ <div class="l">Période de floraison</div><p class="v">${esc(p.f)}</p>
+ <div class="l">Période végétative</div><p class="v">${esc(p.v)}</p>
+ <div class="l">Conseils d'entretien</div><p class="v">${esc(p.c)}</p></div>${fertHTML()}
+ ${i>=0?'<div class="row"><button class="s" id="ed">Modifier</button><button class="d" id="del">Supprimer</button></div>':""}`;
+ document.getElementById("b").onclick=home;
+ if(i>=0){document.getElementById("ed").onclick=()=>form(i);
+  document.getElementById("del").onclick=()=>{if(confirm("Supprimer cette plante ?")){mine.splice(i,1);save();home()}}}
+}
+function form(i){
+ const p=i>=0?mine[i]:{n:"",t:"",f:"",v:"",c:""};
+ document.getElementById("list").innerHTML=`${i>=0?'<button class="s" id="b">‹ Retour</button><h1>Modifier</h1>':""}
+ <input id="n" placeholder="Nom de la plante" value="${esc(p.n)}"><input id="t" placeholder="Période de taille" value="${esc(p.t)}">
+ <input id="f" placeholder="Période de floraison" value="${esc(p.f)}"><input id="v" placeholder="Période végétative" value="${esc(p.v)}">
+ <textarea id="c" rows="4" placeholder="Conseils d'entretien">${esc(p.c)}</textarea>
+ <p style="color:var(--mu);font-size:14px">Les engrais s'affichent automatiquement sur chaque fiche.</p><button id="ok">Enregistrer</button>`;
+ if(i>=0)document.getElementById("b").onclick=()=>{mode="list";home()};
+ document.getElementById("ok").onclick=()=>{
+  const g=x=>document.getElementById(x).value.trim(),o={n:g("n"),t:g("t"),f:g("f"),v:g("v"),c:g("c")};
+  if(!o.n){alert("Le nom est obligatoire.");return}
+  if(i>=0)mine[i]=o;else mine.push(o);save();q="";mode="list";home();
+ };
+}
+home();
+if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+</script></body></html>
